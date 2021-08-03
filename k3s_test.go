@@ -3,6 +3,7 @@ package dtest
 import (
 	"context"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,6 +12,12 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	// Skip the test if running in CI and not on linux, because we won't be able to run the container other than on linux
+	isCi := os.Getenv("CI")
+	if isCi == "true" && runtime.GOOS != "linux" {
+		return
+	}
+
 	// we get the lock to make sure we are the only thing running
 	// because the nat tests interfere with docker functionality
 	WithMachineLock(context.TODO(), func(ctx context.Context) {
