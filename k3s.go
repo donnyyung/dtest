@@ -181,8 +181,16 @@ func isK3sReady(ctx context.Context) bool {
 		return false
 	}
 
-	cmd := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "api-resources", "-o", "name")
+	cmd := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "apply", "-f", "https://docs.projectcalico.org/manifests/calico.yaml")
 	output, err := cmd.Output()
+	if err != nil {
+		dlog.Errorf(ctx, "Failed to start calico")
+		return false
+	}
+	fmt.Printf(string(output))
+
+	cmd = dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "api-resources", "-o", "name")
+	output, err = cmd.Output()
 	if err != nil {
 		return false
 	}
@@ -309,14 +317,6 @@ func Kubeconfig(ctx context.Context) string {
 	}
 
 	K3sUp(ctx)
-	kubeconfig = getKubeconfigPath(ctx)
-	cmd := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "apply", "-f", "https://docs.projectcalico.org/manifests/calico.yaml")
-	output, err := cmd.Output()
-	if err != nil {
-		dlog.Errorf(ctx, "Failed to start calico")
-		os.Exit(1)
-	}
-	fmt.Printf(string(output))
 
 	dlog.Printf(ctx, "Polling for k3s to be ready...")
 	for ctx.Err() == nil {
