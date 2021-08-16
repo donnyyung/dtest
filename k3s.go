@@ -320,7 +320,16 @@ func Kubeconfig(ctx context.Context) string {
 	}
 	dlog.Printf(ctx, "k3s is ready!")
 
-	return getKubeconfigPath(ctx)
+	kubeconfig = getKubeconfigPath(ctx)
+	cmd := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "apply", "-f", "https://docs.projectcalico.org/manifests/calico.yaml")
+	output, err := cmd.Output()
+	if err != nil {
+		dlog.Errorf(ctx, "Failed to start calico")
+		os.Exit(1)
+	}
+	fmt.Printf(string(output))
+
+	return kubeconfig
 }
 
 // K3sUp will launch if necessary and return the docker id of a
@@ -333,7 +342,6 @@ func K3sUp(ctx context.Context) string {
 		"--privileged",
 		"--network=container:"+regid,
 		"--volume=/dev/mapper:/dev/mapper",
-		"--volume=/sys:/sys",
 		"--entrypoint=/bin/sh", // for the cgroup hack below
 		// Docker image
 		k3sImage,
