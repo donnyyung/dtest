@@ -349,6 +349,8 @@ func K3sUp(ctx context.Context) string {
 		"server",
 		"--node-name=localhost",
 		"--no-deploy=traefik",
+		"--flannel-backend=none",
+		"--disable-network-policy",
 		"--kube-proxy-arg=conntrack-max-per-core=0")
 }
 
