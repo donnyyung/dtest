@@ -333,6 +333,7 @@ func K3sUp(ctx context.Context) string {
 		"--privileged",
 		"--network=container:"+regid,
 		"--volume=/dev/mapper:/dev/mapper",
+		"--volume=/sys:/sys",
 		"--entrypoint=/bin/sh", // for the cgroup hack below
 		// Docker image
 		k3sImage,
