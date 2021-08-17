@@ -184,6 +184,7 @@ func isK3sReady(ctx context.Context) bool {
 	cmd := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "apply", "-f", "https://docs.projectcalico.org/manifests/calico.yaml")
 	output, err := cmd.Output()
 	if err != nil {
+		fmt.Printf("Failed to start calico")
 		dlog.Errorf(ctx, "Failed to start calico")
 		return false
 	}
@@ -202,6 +203,7 @@ func isK3sReady(ctx context.Context) bool {
 	for _, req := range requiredResources {
 		_, exists := resources[req]
 		if !exists {
+			fmt.Printf("Required resources don't exist")
 			return false
 		}
 	}
@@ -209,6 +211,7 @@ func isK3sReady(ctx context.Context) bool {
 	get := dexec.CommandContext(ctx, "kubectl", "--kubeconfig", kubeconfig, "get", "namespace", "default")
 	err = get.Start()
 	if err != nil {
+		fmt.Printf("Couldn't get namespace")
 		panic(err)
 	}
 	return get.Wait() == nil
